@@ -294,6 +294,25 @@ class WP_Auth0_DBManager {
 			}
 		}
 
+      // 3.6.0
+      if ( ( $this->current_db_version < 18 && 0 !== $this->current_db_version ) || 18 === $version_to_install ) {
+        // TODO: Implement
+        // If `passwordless_enabled`:
+
+            // If `passwordless_method` === `sms`, replace `lock_connections` with `sms`
+            // If `passwordless_method` === `socialOrSms`, add `sms` to `lock_connections`
+
+            // If `passwordless_method` === `magiclink` || `emailcode`, replace `lock_connections` with `email`
+            // If `passwordless_method` === `socialOrMagiclink` || `socialOrEmailcode`, add `email` to `lock_connections`
+
+            // If `passwordless_method` === `emailcode` || `socialOrEmailcode`, add {"passwordlessMethod": "code"} to Lock options
+
+        // TODO: Delete PWL admin fields
+        // TODO: Remove/modify settings validation for PWL
+        // Delete `passwordless_cdn_url`
+        // Delete `passwordless_method`
+      }
+
 		$this->current_db_version = AUTH0_DB_VERSION;
 		update_option( 'auth0_db_version', AUTH0_DB_VERSION );
 

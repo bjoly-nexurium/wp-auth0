@@ -45,12 +45,6 @@ class WP_Auth0_Embed_Widget extends WP_Widget {
 
 		if ( trim( $client_id ) !== '' ) {
 
-			if ( WP_Auth0_Options::Instance()->get( 'passwordless_enabled' ) ) {
-				wp_enqueue_script( 'wpa0_lock', WP_Auth0_Options::Instance()->get( 'passwordless_cdn_url' ), 'jquery' );
-			} else {
-				wp_enqueue_script( 'wpa0_lock', WP_Auth0_Options::Instance()->get( 'cdn_url' ), 'jquery' );
-			}
-
 			echo $args['before_widget'];
 
 			$instance['show_as_modal'] = $this->showAsModal();

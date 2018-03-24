@@ -148,8 +148,6 @@ class WP_Auth0_Options extends WP_Auth0_Options_Generic {
 			'ip_ranges' => '',
 			'lock_connections' => '',
 			'passwordless_enabled' => false,
-			'passwordless_method' => 'magiclink',
-			'passwordless_cdn_url' => '//cdn.auth0.com/js/lock-passwordless-2.2.min.js',
 			'use_lock_10' => true,
 			'cdn_url' => '//cdn.auth0.com/js/lock/11.1/lock.min.js',
 			'cdn_url_legacy' => '//cdn.auth0.com/js/lock-9.2.min.js',
