@@ -21,16 +21,20 @@ class WP_Auth0_State_Handler {
    * WP_Auth0_State_Handler constructor.
    */
   public function __construct() {
-    $this->uniqid = isset( $_COOKIE[ self::COOKIE_NAME ] ) ? $_COOKIE[ self::COOKIE_NAME ] : self::generateNonce();
+    if ( isset( $_COOKIE[ self::COOKIE_NAME ] ) ) {
+      $this->uniqid = $_COOKIE[ self::COOKIE_NAME ];
+    } else {
+      $this->uniqid = $this->generateNonce();
+      $this->store();
+    }
   }
 
   /**
-   * Set the unique ID for state and return
+   * Return the unique ID used for state validation
    *
    * @return string
    */
-  public function issue() {
-    $this->store();
+  public function get() {
     return $this->uniqid;
   }
 
@@ -72,7 +76,7 @@ class WP_Auth0_State_Handler {
    *
    * @return string
    */
-  public static function generateNonce() {
+  protected function generateNonce() {
     return md5( uniqid( rand(), true ) );
   }
 }
