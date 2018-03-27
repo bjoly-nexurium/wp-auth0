@@ -294,24 +294,54 @@ class WP_Auth0_DBManager {
 			}
 		}
 
-      // 3.6.0
-      if ( ( $this->current_db_version < 18 && 0 !== $this->current_db_version ) || 18 === $version_to_install ) {
-        // TODO: Implement
-        // If `passwordless_enabled`:
+		// 3.6.0
+		if ( ( $this->current_db_version < 18 && 0 !== $this->current_db_version ) || 18 === $version_to_install ) {
 
-            // If `passwordless_method` === `sms`, replace `lock_connections` with `sms`
-            // If `passwordless_method` === `socialOrSms`, add `sms` to `lock_connections`
+			if ( $options->get( 'passwordless_enabled', FALSE ) ) {
+				$pwl_method = $options->get( 'passwordless_method' );
+				switch ( $pwl_method ) {
 
-            // If `passwordless_method` === `magiclink` || `emailcode`, replace `lock_connections` with `email`
-            // If `passwordless_method` === `socialOrMagiclink` || `socialOrEmailcode`, add `email` to `lock_connections`
+					// SMS passwordless just needs 'sms' as a connection
+					case 'sms' :
+						$options->set( 'lock_connections', 'sms' );
+						break;
 
-            // If `passwordless_method` === `emailcode` || `socialOrEmailcode`, add {"passwordlessMethod": "code"} to Lock options
+					// Social + SMS means there are existing social connections we want to keep
+					case 'socialOrSms' :
+						$options->add_lock_connection( 'sms' );
+						break;
 
-        // TODO: Delete PWL admin fields
-        // TODO: Remove/modify settings validation for PWL
-        // Delete `passwordless_cdn_url`
-        // Delete `passwordless_method`
-      }
+					// Email link passwordless just needs 'email' as a connection
+					case 'emailcode' :
+					case 'magiclink' :
+						$options->set( 'lock_connections', 'email' );
+						break;
+
+					// Social + Email means there are social connections be want to keep
+					case 'socialOrMagiclink' :
+					case 'socialOrEmailcode' :
+						$options->add_lock_connection( 'email' );
+						break;
+				}
+
+				if ( in_array( $pwl_method, array( 'emailcode', 'socialOrEmailcode' ) ) ) {
+					$lock_json = trim( $options->get( 'extra_conf' ) );
+					if ( empty( $lock_json ) ) {
+						$options->set( 'extra_conf', '{"passwordlessMethod": "code"}' );
+					} else {
+						$lock_json_decoded = json_decode( $lock_json, TRUE );
+						$lock_json_decoded[ 'passwordlessMethod' ] = 'code';
+						$options->set( 'extra_conf', json_encode( $lock_json_decoded ) );
+					}
+				}
+			}
+
+			// Delete `passwordless_cdn_url`
+			// Delete `passwordless_method`
+
+			// TODO: Delete PWL admin fields
+			// TODO: Remove/modify settings validation for PWL
+		}
 
 		$this->current_db_version = AUTH0_DB_VERSION;
 		update_option( 'auth0_db_version', AUTH0_DB_VERSION );

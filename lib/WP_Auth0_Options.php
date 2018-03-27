@@ -129,6 +129,26 @@ class WP_Auth0_Options extends WP_Auth0_Options_Generic {
 		return add_query_arg( 'action', 'logout', site_url( 'wp-login.php', 'login' ) );
 	}
 
+	/**
+	 * Add a new connection to the lock_connections setting
+	 *
+	 * @param string $add_conn - connection name to add
+	 */
+	public function add_lock_connection( $add_conn ) {
+
+		// Get as a string-separated string and parse to array
+		$connections = $this->get( 'lock_connections' );
+		$connections = empty( $connections ) ? array() : explode( ',', $connections );
+		$connections = array_map( 'trim', $connections );
+
+		// Add if it doesn't exist already
+		if ( ! array_key_exists( $add_conn, $connections ) ) {
+			$connections[] = $add_conn;
+			$connections = implode( ',', $connections );
+			$this->set( 'lock_connections', $connections );
+		}
+	}
+
 	protected function defaults() {
 		return array(
 			'version' => 1,
