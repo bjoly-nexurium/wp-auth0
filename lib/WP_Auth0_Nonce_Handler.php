@@ -1,6 +1,6 @@
 <?php
 
-final class WP_Auth0_State_Handler {
+final class WP_Auth0_Nonce_Handler {
 
   /**
    * Cookie name used to store unique state value
@@ -17,7 +17,7 @@ final class WP_Auth0_State_Handler {
   /**
    * Singleton class instance
    *
-   * @var WP_Auth0_State_Handler|null
+   * @var WP_Auth0_Nonce_Handler|null
    */
   private static $_instance = null;
 
@@ -67,11 +67,11 @@ final class WP_Auth0_State_Handler {
   /**
    * Get the internal instance of the singleton
    *
-   * @return WP_Auth0_State_Handler
+   * @return WP_Auth0_Nonce_Handler
    */
   public static final function getInstance() {
     if ( null === self::$_instance ) {
-      self::$_instance = new WP_Auth0_State_Handler();
+      self::$_instance = new WP_Auth0_Nonce_Handler();
     }
     return self::$_instance;
   }
@@ -105,7 +105,7 @@ final class WP_Auth0_State_Handler {
    */
   public function setCookie() {
     $_COOKIE[ self::COOKIE_NAME ] = $this->_uniqid;
-    return setcookie( self::COOKIE_NAME, $this->_uniqid, time() + self::COOKIE_EXPIRES );
+    return setcookie( self::COOKIE_NAME, $this->_uniqid, time() + self::COOKIE_EXPIRES, '/' );
   }
 
   /**
@@ -118,13 +118,14 @@ final class WP_Auth0_State_Handler {
   }
 
   /**
-   * Generate a pseudo-random ID (not cryptographically secure)
+   * Generate a random ID
+   * If using on PHP 7, it will be cryptographically secure
    *
-   * @see https://stackoverflow.com/a/1846229/728480
+   * @see https://secure.php.net/manual/en/function.random-bytes.php
    *
    * @return string
    */
   public function generateNonce() {
-    return md5( uniqid( rand(), true ) );
+    return function_exists( 'random_bytes' ) ? bin2hex( random_bytes( 32 ) ) : md5( uniqid( rand(), true ) );
   }
 }
